@@ -252,8 +252,92 @@
 </footer>
 
 <script>
-    // JavaScript Anda untuk parseHumanNumber dan calculateEnergy tetap sama di sini
-    // (Gunakan fungsi pemrosesan angka yang sudah berjalan sebelumnya)
+    function parseHumanNumber(text) {
+        if (!text) return NaN;
+        let str = text.trim().toLowerCase();
+        
+        let multiplier = 1;
+        if (str.endsWith('jt') || str.endsWith('juta')) {
+            multiplier = 1000000;
+            str = str.replace(/juta|jt/g, '');
+        } else if (str.endsWith('rb') || str.endsWith('ribu') || str.endsWith('k')) {
+            multiplier = 1000;
+            str = str.replace(/ribu|rb|k/g, '');
+        } else if (str.endsWith('m') || str.endsWith('milyar') || str.endsWith('miliar')) {
+            multiplier = 1000000000;
+            str = str.replace(/milyar|miliar|m/g, '');
+        }
+
+        const dotCount = (str.match(/\./g) || []).length;
+        const commaCount = (str.match(/,/g) || []).length;
+        
+        if (dotCount > 0 && commaCount === 0) {
+            if (/\.\d{3}(\D|$)/.test(str) || dotCount > 1) {
+                str = str.replace(/\./g, '');
+            }
+        } else if (commaCount > 0) {
+            str = str.replace(/\./g, '');
+            str = str.replace(/,/g, '.');
+        }
+        
+        return parseFloat(str) * multiplier;
+    }
+
+    function formatIndonesian(num) {
+        if (isNaN(num) || num === null) return '';
+        return new Intl.NumberFormat('id-ID').format(num);
+    }
+
+    function setupLiveHint(inputId, hintId, suffix) {
+        const inputEl = document.getElementById(inputId);
+        const hintEl = document.getElementById(hintId);
+        
+        function updateHint() {
+            const val = parseHumanNumber(inputEl.value);
+            if (isNaN(val)) {
+                hintEl.innerText = 'Format tidak valid';
+                hintEl.style.color = '#ef4444';
+            } else {
+                hintEl.innerText = 'Terbaca: ' + formatIndonesian(val) + ' ' + suffix;
+                hintEl.style.color = '#38bdf8';
+            }
+        }
+        inputEl.addEventListener('input', updateHint);
+        updateHint();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        setupLiveHint('cluster-size-raw', 'cluster-hint', 'GPU');
+        setupLiveHint('power-per-gpu-raw', 'power-hint', 'Watt');
+        setupLiveHint('duration-raw', 'duration-hint', '');
+    });
+
+    function calculateEnergy() {
+        const clusterSize = parseHumanNumber(document.getElementById('cluster-size-raw').value);
+        const powerPerGpu = parseHumanNumber(document.getElementById('power-per-gpu-raw').value);
+        let duration = parseHumanNumber(document.getElementById('duration-raw').value);
+        const timeUnit = document.getElementById('time-unit').value;
+        
+        if (isNaN(clusterSize) || isNaN(powerPerGpu) || isNaN(duration)) {
+            alert('Mohon periksa kembali inputan Anda. Pastikan format angka sudah benar.');
+            return;
+        }
+        
+        if (timeUnit === 'days') duration *= 24;
+        else if (timeUnit === 'years') duration *= 8760;
+        
+        const totalPowerWatt = clusterSize * powerPerGpu;
+        const totalPowerTW = totalPowerWatt / 1e12;
+        const totalEnergyTWh = (totalPowerWatt * duration) / 1e12;
+        
+        document.getElementById('energy-instantaneous').innerText = totalPowerTW < 0.000001 ? 
+            totalPowerTW.toExponential(4) + ' TW' : totalPowerTW.toLocaleString('id-ID', {maximumFractionDigits: 7}) + ' TW';
+            
+        document.getElementById('energy-total').innerText = totalEnergyTWh < 0.000001 ? 
+            totalEnergyTWh.toExponential(4) + ' TWh' : totalEnergyTWh.toLocaleString('id-ID', {maximumFractionDigits: 7}) + ' TWh';
+        
+        document.getElementById('result-box').style.display = 'block';
+    }
 </script>
 
 </body>
