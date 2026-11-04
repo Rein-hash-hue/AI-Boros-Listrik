@@ -177,6 +177,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
@@ -184,6 +185,30 @@
             color: #d9dddc;
             text-align: center;
             font-size: 0.85rem;
+            margin: 0 auto;
+        }
+
+         .about-link {
+            color: #f1f5f9;
+            text-decoration: none;
+            display: inline-block;
+            padding: 10px 24px;
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 30px;
+            font-weight: 400;
+            font-size: 0.92rem;
+            letter-spacing: 0.3px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .about-link:hover {
+            transform: translateY(-3px);
+            color: #0b1329;
+            background-color: #38bdf8;
+            border-color: #38bdf8;
+            font-weight: 600;
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.5);
         }
 
         @media (max-width: 768px) {
@@ -218,6 +243,12 @@
             .p-content1 {
                 font-size: 0.88rem;
                 line-height: 1.6;
+            }
+
+            .about-link{
+                display: block;
+                text-align: center;
+                width: 100%;
             }
         }
     </style>
@@ -259,6 +290,7 @@
     </main>
 
     <div class="container-footer">
+        <a href="About.html" class="about-link">About</a>
         <p class="p-footer">&copy; 2026 Kelompok 7. All rights reserved.</p>
     </div>
 </body>
